@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#7b2d26">
+  <title>Maa'er Henschel | Homemade Food & Snacks</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="#"><span class="brand-mark">মা</span><span><strong>Maa'er Henschel</strong><small>Homemade food & snacks</small></span></a>
+  <nav><a href="#menu">Menu</a><a href="#events">Event Orders</a><a href="#contact">Contact</a><button class="cart-button" id="cartToggle">Cart <span id="cartCount">0</span></button></nav>
+</header>
+<main>
+  <section class="hero">
+    <div class="hero-copy"><p class="eyebrow">A little taste of home</p><h1>Simple food.<br><em>Made with care.</em></h1>
+      <p>Freshly prepared favourites for everyday cravings, family gatherings and special occasions.</p>
+      <a class="primary-link" href="#menu">Explore our menu <span>→</span></a>
+    </div>
+    <div class="hero-art" aria-label="Illustration of a home-cooked meal"><div class="plate"><div class="food food-one"></div><div class="food food-two"></div><div class="food food-three"></div><span class="plate-leaf">✦</span></div><div class="art-note">Prepared with<br>love & care</div></div>
+  </section>
+  <section class="menu-section" id="menu">
+    <div class="section-heading"><div><p class="eyebrow">Good food, no fuss</p><h2>Our menu</h2></div><p>Choose your favourites and add them to your cart.</p></div>
+    <div id="productGrid" class="product-grid"></div>
+  </section>
+  <section class="event-section" id="events"><div><p class="eyebrow">Something to celebrate?</p><h2>Food for your special moments.</h2><p>We accept advance orders for marriages, parties, family functions and other events. Get in touch to discuss your requirements.</p></div><a class="outline-link" href="#contact">Enquire about an event <span>→</span></a></section>
+  <section class="contact-section" id="contact"><div><p class="eyebrow">Find us</p><h2>Made near you.</h2><p>23/7 Sarsuna Kastodanga Road,<br>Sanpui Para, Kolkata – 700061</p></div><div class="contact-card"><span class="contact-icon">⌂</span><strong>Maa'er Henschel</strong><p>For menu enquiries, regular orders and event bookings, please contact us.</p><a href="#" id="contactWhatsApp" class="text-link">Contact on WhatsApp →</a></div></section>
+</main>
+<footer><span>© <span id="year"></span> Maa'er Henschel</span><span>Prepared with care, served with love.</span></footer>
+
+<aside class="cart-panel" id="cartPanel" aria-label="Shopping cart" aria-hidden="true">
+  <div class="cart-head"><h2>Your cart</h2><button class="icon-button" id="cartClose" aria-label="Close cart">×</button></div>
+  <div id="cartItems" class="cart-items"><p class="empty-cart">Your cart is empty.</p></div>
+  <div class="cart-bottom"><div class="total-line"><span>Total</span><strong id="cartTotal">₹0</strong></div>
+    <form id="orderForm"><label>Your name<input name="name" required placeholder="Enter your name"></label><label>Phone number<input name="phone" required inputmode="tel" placeholder="Your phone number"></label><label>Delivery address<textarea name="address" required rows="2" placeholder="Enter your full address"></textarea></label><button class="primary-button" type="submit">Place order on WhatsApp</button><small class="form-note" id="orderNote">Your order details will be prepared in WhatsApp.</small></form>
+  </div>
+</aside><div class="scrim" id="scrim"></div>
+<script src="app.js"></script>
+</body></html>
