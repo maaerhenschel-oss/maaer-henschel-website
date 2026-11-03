@@ -17,10 +17,33 @@
   </section>
   <section class="menu-section" id="menu"><div class="section-heading"><div><p class="eyebrow">Good food, no fuss</p><h2>Our menu</h2></div><p>Choose your favourites and add them to your cart.</p></div><div id="productGrid" class="product-grid"><p>Loading menu…</p></div></section>
   <section class="event-section" id="events"><div><p class="eyebrow">Something to celebrate?</p><h2>Food for your special moments.</h2><p>We accept advance enquiries for marriages, parties, family functions and other events. Get in touch to discuss your requirements.</p></div><a class="outline-link" href="#contact">Enquire about an event <span>→</span></a></section>
+  <section class="delivery-rules" id="delivery-rules">
+    <div class="rules-heading"><p class="eyebrow">Before you order</p><h2>Order &amp; delivery rules</h2></div>
+    <div class="rules-grid">
+      <div class="rule-card"><strong>Order anytime</strong><p>We accept orders every day, from 12:00 AM to 11:59 PM.</p></div>
+      <div class="rule-card"><strong>Next-day delivery</strong><p>Orders are delivered the following day, between 11:00 AM and 10:00 PM.</p></div>
+      <div class="rule-card"><strong>Small order charge</strong><p>Orders below ₹300 have an extra charge of ₹30.</p></div>
+      <div class="rule-card"><strong>Delivery charge</strong><p>Free delivery within 3 km. Delivery beyond 3 km has an extra charge of ₹30.</p></div>
+    </div>
+    <p class="rules-note">Any applicable extra charges are added to your checkout total before you continue to WhatsApp.</p>
+  </section>
   <section class="contact-section" id="contact"><div><p class="eyebrow">Find us</p><h2>Made near you.</h2><p>23/7 Sarsuna Kastodanga Road,<br>Sanpui Para, Kolkata – 700061</p></div><div class="contact-card"><span class="contact-icon">⌂</span><strong>Maa'er Henschel</strong><p>For menu enquiries, regular orders and event bookings, please contact us.</p><a href="#" id="contactWhatsApp" class="text-link">Contact on WhatsApp →</a><p id="contactNotice" class="small-note"></p></div></section>
 </main>
 <footer><span>© <span id="year"></span> Maa'er Henschel</span><span>Prepared with care, served with love.</span></footer>
-<aside class="cart-panel" id="cartPanel" aria-label="Shopping cart" aria-hidden="true"><div class="cart-head"><h2>Your cart</h2><button class="icon-button" id="cartClose" aria-label="Close cart">×</button></div><div id="cartItems" class="cart-items"><p class="empty-cart">Your cart is empty.</p></div><div class="cart-bottom"><div class="total-line"><span>Total</span><strong id="cartTotal">₹0</strong></div>
-<form id="orderForm"><label>Your name<input name="name" required placeholder="Enter your name"></label><label>Phone number<input name="phone" required inputmode="tel" placeholder="Your phone number"></label><label>Delivery address<textarea name="address" required rows="2" placeholder="Enter your full address"></textarea></label><button class="primary-button" type="submit">Continue order on WhatsApp</button><small class="form-note">Your order will be sent to the business WhatsApp number.</small></form></div></aside><div class="scrim" id="scrim"></div>
+<aside class="cart-panel" id="cartPanel" aria-label="Shopping cart" aria-hidden="true"><div class="cart-head"><h2>Your cart</h2><button class="icon-button" id="cartClose" aria-label="Close cart">×</button></div><div id="cartItems" class="cart-items"><p class="empty-cart">Your cart is empty.</p></div><div class="cart-bottom"><div class="checkout-breakdown">
+<div class="total-line"><span>Food subtotal</span><strong id="cartSubtotal">₹0</strong></div>
+<div class="total-line"><span>Small order charge</span><strong id="smallOrderCharge">₹0</strong></div>
+<div class="total-line"><span>Delivery charge</span><strong id="deliveryCharge">₹0</strong></div>
+<div class="total-line grand-total"><span>Checkout total</span><strong id="cartTotal">₹0</strong></div>
+</div>
+<form id="orderForm"><label>Your name<input name="name" required placeholder="Enter your name"></label><label>Phone number<input name="phone" required inputmode="tel" placeholder="Your phone number"></label><label>Delivery address<textarea name="address" required rows="2" placeholder="Enter your full address"></textarea></label>
+<label>Delivery distance from our location
+<select name="deliveryDistance" id="deliveryDistance" required>
+<option value="">Select your delivery distance</option>
+<option value="within">Within 3 km — Free delivery</option>
+<option value="beyond">More than 3 km — ₹30 delivery charge</option>
+</select></label>
+<small class="form-note">Please select the correct distance. We may confirm the distance using your delivery address.</small>
+<button class="primary-button" type="submit">Continue order on WhatsApp</button><small class="form-note">Orders are accepted daily, 12:00 AM–11:59 PM. Delivery is scheduled for the next day, 11:00 AM–10:00 PM. Your order and applicable charges will be shown in WhatsApp.</small></form></div></aside><div class="scrim" id="scrim"></div>
 <script src="app.js"></script>
 </body></html>
