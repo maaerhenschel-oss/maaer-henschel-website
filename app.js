@@ -69,8 +69,8 @@ document.addEventListener("DOMContentLoaded",async()=>{
       `Small order charge: ${money(fees.smallOrder)}`,
       `Delivery charge: ${money(fees.delivery)}`,
       `Checkout total: ${money(fees.total)}`,"",
-      "Order timing: Accepted daily, 12:00 AM–11:59 PM.",
-      "Delivery timing: Next day, 11:00 AM–10:00 PM."
+      "Order timing: Accepted daily, 9:00 AM–9:00 PM.",
+      "Delivery timing: Within 2 hours after the order is received. For immediate delivery, please call the restaurant directly."
     ].join("\n");
     window.open(waUrl(message),"_blank","noopener,noreferrer");
   };
