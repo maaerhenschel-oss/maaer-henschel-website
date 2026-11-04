@@ -17,3 +17,12 @@
 @media(max-width:700px){.delivery-rules{padding:50px 7vw}.rules-heading h2{font-size:32px}.rules-grid{grid-template-columns:1fr}}
 
 @media(max-width:700px){.brand-logo{width:48px;height:48px}}
+
+/* Menu category filters */
+.menu-categories{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 24px}
+.category-chip{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 16px;border-radius:24px;cursor:pointer;font:12px Arial,sans-serif;transition:background .15s,color .15s,border-color .15s}
+.category-chip:hover,.category-chip.active{background:var(--red);border-color:var(--red);color:#fff}
+.category-form{display:flex;align-items:end;gap:14px;max-width:560px}
+.category-form label{display:block;flex:1;font:12px Arial,sans-serif;color:var(--muted);margin:12px 0}
+.category-form input{display:block;width:100%;padding:11px;border:1px solid var(--line);margin-top:6px;font:13px Arial,sans-serif;background:white}
+@media(max-width:700px){.category-form{display:block}.category-form .primary-button{width:100%}}
