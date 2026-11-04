@@ -1,25 +1,26 @@
-# Maa'er Henschel — secure admin + shared menu update
+# Maa'er Henschel — secure admin + category menu + direct photo upload (no R2 billing)
 
-## Website pages
+## Pages
 - Customer website: `/`
-- Admin login: `/admin.html`
+- Admin panel: `/admin.html`
 
-## One-time Cloudflare setup
-The database table and the first three menu items are created automatically by the website the first time it connects to D1. You do not need to write or run SQL.
+## Existing Cloudflare setup
+Keep the existing D1 binding named `DB`, and the existing encrypted secrets `ADMIN_PASSWORD` and `SESSION_SECRET`. Do not remove them.
 
-1. In the Cloudflare Pages project `maaer-henschel-website`, open **Settings → Functions → D1 database bindings**. Add a binding with variable name `DB` and select the database `maaer-henschel-db`. Save it.
-2. Open **Settings → Variables and secrets** for the Production environment. Add encrypted secret `ADMIN_PASSWORD` with a private password you choose.
-3. Add encrypted secret `SESSION_SECRET` with a different, long random value (at least 32 characters). Do not share either secret in chat or put them in GitHub files.
-4. In Cloudflare, create an R2 bucket (for example `maaer-henschel-images`). In the Pages project, open **Settings → Functions → R2 bucket bindings**, add a binding with variable name `IMAGES`, and select that bucket. The bucket does not need public access; uploaded photos are served through the website API.
-5. Save settings and redeploy the latest `main` commit.
+## One-time free image-upload setup (GitHub storage)
+This version stores uploaded food photos in the public GitHub repository. No Cloudflare R2 subscription or payment method is used. Uploaded food images are public, so upload only photos intended for the public menu.
 
-## What this version does
-- Customer menu is loaded from the shared D1 database.
-- Admin login is protected by a server-checked password and a signed, HttpOnly session cookie (8-hour expiry).
-- Admin can add, edit, and delete menu items; changes appear on the customer website.
-- The database table and the initial menu are created automatically; no SQL Console step is needed.
-- Admin can upload JPG, PNG, WEBP or GIF product photos directly from a device (maximum 5 MB per image). Files are stored in the private Cloudflare R2 bucket bound as `IMAGES`; the website serves them through `/api/images/...`. An existing public HTTPS image URL can still be used if preferred.
-- If the `IMAGES` binding is missing, photo uploads show a setup message; add the R2 binding described above and redeploy.
-- WhatsApp ordering is not enabled until the business WhatsApp number is provided.
+1. In GitHub, create a **fine-grained personal access token** for only the repository `maaerhenschel-oss/maaer-henschel-website`. Grant **Contents: Read and write** (Metadata read-only is normally selected automatically). Do not paste the token into chat or commit it to this repository.
+2. In Cloudflare Dashboard, open Workers & Pages → `maaer-henschel-website` → Settings → Variables and Secrets → Production. Add `GITHUB_TOKEN` as an **encrypted secret** and paste the token there.
+3. Add these production environment variables: `GITHUB_OWNER` = `maaerhenschel-oss`; `GITHUB_REPO` = `maaer-henschel-website`; `GITHUB_BRANCH` = `main`.
+4. Save the settings and redeploy the latest production deployment.
+5. Sign in to `/admin.html`. Choose a JPG, PNG, WEBP or GIF photo (maximum 5 MB) and save the product. The server uploads the photo to the repository `images/` folder and saves its public raw image URL with the product.
 
-Keep the admin password private. The admin page URL is `/admin.html`.
+**Important:** Each uploaded photo creates a commit in the GitHub repository. If the Pages project automatically deploys on every commit to `main`, each photo upload may also start a deployment. The photo itself is publicly accessible because the repository is public. Never store the GitHub token in browser code, HTML, JavaScript files, or GitHub.
+
+## Features
+- Shared menu and categories use the existing D1 database.
+- Admin login uses the existing server-verified password and signed session cookie.
+- Add, edit and delete products and categories.
+- Direct device photo upload via the protected `/api/upload` endpoint, stored in GitHub without R2.
+- Existing public HTTPS image URLs remain supported.
