@@ -6,6 +6,29 @@ const money=n=>"₹"+Number(n).toLocaleString("en-IN");
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let products=[];
 let selectedCategory="All";
+const ORDER_TIME_ZONE="Asia/Kolkata";
+function isOrderingOpen(){
+  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:ORDER_TIME_ZONE,hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const hour=Number(parts.find(p=>p.type==="hour").value);
+  const minute=Number(parts.find(p=>p.type==="minute").value);
+  const currentMinutes=hour*60+minute;
+  return currentMinutes>=9*60&&currentMinutes<21*60;
+}
+function updateOrderAvailability(){
+  const open=isOrderingOpen();
+  const button=document.getElementById("placeOrderButton");
+  const status=document.getElementById("orderStatus");
+  const closedNote=document.getElementById("orderClosedNote");
+  if(button){button.disabled=!open;button.textContent=open?"Continue order on WhatsApp":"Online ordering is closed";}
+  if(status){
+    status.textContent=open
+      ?"Online ordering is OPEN — accepting orders daily from 9:00 AM to 9:00 PM (IST)."
+      :"Online ordering is currently CLOSED. We’ll start accepting orders again at 9:00 AM (IST).";
+    status.classList.toggle("is-closed",!open);
+    status.classList.toggle("is-open",open);
+  }
+  if(closedNote){closedNote.hidden=open;closedNote.textContent="Online ordering is closed now. Please come back after 9:00 AM IST.";}
+}
 function getCart(){try{return JSON.parse(sessionStorage.getItem(CART_KEY))||{}}catch{return {}}}
 function saveCart(c){sessionStorage.setItem(CART_KEY,JSON.stringify(c))}
 async function loadMenu(){const r=await fetch("/api/products");if(!r.ok)throw Error("Menu unavailable");return r.json()}
@@ -33,6 +56,9 @@ function closeCart(){document.getElementById("cartPanel").classList.remove("open
 document.addEventListener("DOMContentLoaded",async()=>{
   if(!document.getElementById("productGrid"))return;
   document.getElementById("year").textContent=new Date().getFullYear();
+  updateOrderAvailability();
+  window.setInterval(updateOrderAvailability,15000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateOrderAvailability()});
   document.getElementById("cartToggle").onclick=openCart;
   document.getElementById("cartClose").onclick=closeCart;
   document.getElementById("scrim").onclick=closeCart;
@@ -45,6 +71,7 @@ document.addEventListener("DOMContentLoaded",async()=>{
   document.getElementById("deliveryDistance").addEventListener("change",updateCheckoutTotals);
   document.getElementById("orderForm").onsubmit=e=>{
     e.preventDefault();
+    if(!isOrderingOpen()){updateOrderAvailability();alert("Online ordering is closed now. Please place your order between 9:00 AM and 9:00 PM IST.");return}
     const form=e.currentTarget;
     const data=new FormData(form);
     const c=getCart();

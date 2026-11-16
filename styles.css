@@ -26,3 +26,5 @@
 .category-form label{display:block;flex:1;font:12px Arial,sans-serif;color:var(--muted);margin:12px 0}
 .category-form input{display:block;width:100%;padding:11px;border:1px solid var(--line);margin-top:6px;font:13px Arial,sans-serif;background:white}
 @media(max-width:700px){.category-form{display:block}.category-form .primary-button{width:100%}}
+
+.order-status{margin:-12px 0 22px;padding:13px 16px;border:1px solid var(--line);background:var(--cream);font:13px/1.5 Arial,sans-serif;color:var(--red)}.order-status.is-open{border-color:#c9ddc4;background:#f2f8ef;color:#315b2c}.order-status.is-closed{border-color:#e8c9c4;background:#fff3f1;color:#8a3028}.primary-button:disabled{background:#8b817d;opacity:1;cursor:not-allowed}
