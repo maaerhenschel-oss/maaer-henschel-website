@@ -12,6 +12,7 @@
   <nav><a href="#menu">Menu</a><a href="#events">Event Orders</a><a href="#contact">Contact</a><button class="cart-button" id="cartToggle">Cart <span id="cartCount">0</span></button></nav>
 </header>
 <main>
+  <div class="offer-banner">SPECIAL OFFER: 10% OFF <span>— Up to ₹100 on orders of ₹699 and above</span></div>
   <section class="hero"><div class="hero-copy"><p class="eyebrow">A little taste of home</p><h1>Simple food.<br><em>Made with care.</em></h1><p>Freshly prepared favourites for everyday cravings, family gatherings and special occasions.</p><a class="primary-link" href="#menu">Explore our menu <span>→</span></a></div>
     <div class="hero-art" aria-label="Illustration of a home-cooked meal"><div class="plate"><div class="food food-one"></div><div class="food food-two"></div><div class="food food-three"></div><span class="plate-leaf">✦</span></div><div class="art-note">Prepared with<br>love & care</div></div>
   </section>
@@ -23,6 +24,7 @@
       <div class="rule-card"><strong>Order timing</strong><p>We accept orders every day, from 9:00 AM to 9:00 PM.</p></div>
       <div class="rule-card"><strong>Delivery timing</strong><p>Delivery within 2 hours after your order is received. For immediate delivery, please call the restaurant directly.</p></div>
       <div class="rule-card"><strong>Small order charge</strong><p>Orders below ₹300 have an extra charge of ₹30.</p></div>
+      <div class="rule-card"><strong>Special discount</strong><p>Get 10% off, up to ₹100, on food orders of ₹699 and above.</p></div>
       <div class="rule-card"><strong>Delivery charge</strong><p>Free delivery within 3 km. Delivery beyond 3 km has an extra charge of ₹30.</p></div>
     </div>
     <p class="rules-note">Any applicable extra charges are added to your checkout total before you continue to WhatsApp.</p>
@@ -34,6 +36,7 @@
 <div class="total-line"><span>Food subtotal</span><strong id="cartSubtotal">₹0</strong></div>
 <div class="total-line"><span>Small order charge</span><strong id="smallOrderCharge">₹0</strong></div>
 <div class="total-line"><span>Delivery charge</span><strong id="deliveryCharge">₹0</strong></div>
+<div class="total-line discount-line"><span>10% Discount</span><strong id="cartDiscount">₹0</strong></div>
 <div class="total-line grand-total"><span>Checkout total</span><strong id="cartTotal">₹0</strong></div>
 </div>
 <form id="orderForm"><label>Your name<input name="name" required placeholder="Enter your name"></label><label>Phone number<input name="phone" required inputmode="tel" placeholder="Your phone number"></label><label>Delivery address<textarea name="address" required rows="2" placeholder="Enter your full address"></textarea></label>

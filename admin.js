@@ -6,12 +6,33 @@ function clearForm(){$("productForm").reset();$("productId").value="";$("imageMe
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function renderCategories(){const select=$("productCategory");select.innerHTML=categories.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");const root=$("adminCategories");root.innerHTML=categories.map(c=>`<div class="admin-product"><div><strong>${escapeHtml(c.name)}</strong><small>${items.filter(p=>p.category===c.name).length} products</small></div><div>${c.id==="uncategorized"?'<small class="muted">Default category</small>':`<button class="outline-button" data-category-delete="${escapeHtml(c.id)}">Delete category</button>`}</div></div>`).join("");root.querySelectorAll("[data-category-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this category? It can only be deleted when no products are assigned to it."))return;try{await api("/api/categories",{method:"DELETE",body:JSON.stringify({id:b.dataset.categoryDelete})});await loadAll();msg("categoryMessage","Category deleted.")}catch(e){msg("categoryMessage",e.message)}})}
 function renderProducts(){const root=$("adminProducts");root.innerHTML=items.map(p=>`<div class="admin-product"><div><strong>${escapeHtml(p.name)} — ₹${Number(p.price).toLocaleString("en-IN")}</strong><small>${escapeHtml(p.category||"Uncategorized")} · ${escapeHtml(p.description||"")}</small></div><div><button class="outline-button" data-edit="${escapeHtml(p.id)}">Edit</button><button class="outline-button" data-delete="${escapeHtml(p.id)}">Delete</button></div></div>`).join("")||"<p>No products yet.</p>";root.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const p=items.find(x=>x.id===b.dataset.edit);$("productId").value=p.id;$("productName").value=p.name;$("productCategory").value=p.category||"Uncategorized";$("productPrice").value=p.price;$("productDescription").value=p.description||"";$("productImage").value=p.image||"";$("productImageFile").value="";$("imageMessage").textContent=p.image?"Current photo is saved. Choose a new file only if you want to replace it.":"";window.scrollTo({top:0,behavior:"smooth"})});root.querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this product?"))return;try{await api("/api/products",{method:"DELETE",body:JSON.stringify({id:b.dataset.delete})});await loadAll();msg("saveMessage","Product deleted.")}catch(e){msg("saveMessage",e.message)}})}
-async function loadAll(){items=await api("/api/products");categories=await api("/api/categories");renderCategories();renderProducts()}
+async function loadOrderSettings(){
+ const s=await api("/api/settings");
+ $("orderingEnabled").checked=!!s.orderingEnabled;
+ $("closedMessage").value=s.closedMessage||"We are temporarily not accepting online orders. Please visit again later.";
+ renderOrderState();
+}
+function renderOrderState(){
+ const on=$("orderingEnabled").checked;
+ $("adminOrderState").textContent=on?"ONLINE ORDERING: ON":"ONLINE ORDERING: OFF";
+ $("adminOrderHelp").textContent=on?"Customers can place orders during the regular 9 AM–9 PM hours.":"Customers cannot place new online orders, even during regular operating hours.";
+}
+async function loadAll(){items=await api("/api/products");categories=await api("/api/categories");renderCategories();renderProducts();await loadOrderSettings()}
 async function showDashboard(){$("loginCard").hidden=true;$ ("dashboard").hidden=false;await loadAll()}
 document.addEventListener("DOMContentLoaded",async()=>{try{await api("/api/auth/me");await showDashboard()}catch{$("loginCard").hidden=false;$ ("dashboard").hidden=true}
 $("loginForm").onsubmit=async e=>{e.preventDefault();msg("loginMessage","Signing in…");try{await api("/api/auth/login",{method:"POST",body:JSON.stringify({password:$("adminPassword").value})});$("adminPassword").value="";await showDashboard();msg("loginMessage","")}catch(err){msg("loginMessage",err.message);$("adminPassword").select()}};
 $("logoutButton").onclick=async()=>{try{await api("/api/auth/logout",{method:"POST",body:"{}"})}finally{$("dashboard").hidden=true;$ ("loginCard").hidden=false;msg("loginMessage","You have signed out.")}};
 $("cancelEdit").onclick=clearForm;
+$("orderingEnabled").onchange=renderOrderState;
+$("saveOrderSettings").onclick=async()=>{
+ msg("orderSettingsMessage","Saving…");
+ try{
+  const s=await api("/api/settings",{method:"POST",body:JSON.stringify({orderingEnabled:$("orderingEnabled").checked,closedMessage:$("closedMessage").value.trim()})});
+  $("orderingEnabled").checked=!!s.orderingEnabled;renderOrderState();
+  msg("orderSettingsMessage",s.orderingEnabled?"Online ordering is ON. Customers can order during operating hours.":"Online ordering is OFF. New customer orders are paused.");
+ }catch(e){msg("orderSettingsMessage",e.message)}
+};
+
 $("productForm").onsubmit=async e=>{e.preventDefault();msg("saveMessage","Saving…");const p={id:$("productId").value||undefined,name:$("productName").value.trim(),category:$("productCategory").value,price:Number($("productPrice").value),description:$("productDescription").value.trim(),image:$("productImage").value.trim()};try{const file=$("productImageFile").files[0];if(file){msg("imageMessage","Uploading photo…");const form=new FormData();form.append("image",file);const upload=await fetch("/api/upload",{method:"POST",credentials:"same-origin",body:form});let result={};try{result=await upload.json()}catch{}if(!upload.ok)throw Error(result.error||"Photo upload failed.");p.image=result.url;msg("imageMessage","Photo uploaded successfully.")}await api("/api/products",{method:"POST",body:JSON.stringify(p)});clearForm();await loadAll();msg("saveMessage","Saved. The customer menu is now updated online.")}catch(err){msg("saveMessage",err.message)}};
 $("categoryForm").onsubmit=async e=>{e.preventDefault();msg("categoryMessage","Adding…");try{await api("/api/categories",{method:"POST",body:JSON.stringify({name:$("categoryName").value.trim()})});$("categoryForm").reset();await loadAll();msg("categoryMessage","Category added. You can now assign products to it.")}catch(err){msg("categoryMessage",err.message)}};
 });

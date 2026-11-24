@@ -19,7 +19,9 @@ This version stores uploaded food photos in the public GitHub repository. No Clo
 **Important:** Each uploaded photo creates a commit in the GitHub repository. If the Pages project automatically deploys on every commit to `main`, each photo upload may also start a deployment. The photo itself is publicly accessible because the repository is public. Never store the GitHub token in browser code, HTML, JavaScript files, or GitHub.
 
 ## Features
-- Shared menu and categories use the existing D1 database.
+- Shared menu, categories, and store ordering settings use the existing D1 database.
+- Admin can manually pause/resume customer ordering; regular 9 AM–9 PM hours still apply.
+- Customer checkout automatically applies 10% off eligible food subtotals of ₹699 and above, capped at ₹100.
 - Admin login uses the existing server-verified password and signed session cookie.
 - Add, edit and delete products and categories.
 - Direct device photo upload via the protected `/api/upload` endpoint, stored in GitHub without R2.

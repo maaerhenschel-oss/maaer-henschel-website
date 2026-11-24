@@ -6,6 +6,10 @@ const money=n=>"₹"+Number(n).toLocaleString("en-IN");
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let products=[];
 let selectedCategory="All";
+let storeSettings={orderingEnabled:true,closedMessage:"We are temporarily not accepting online orders. Please visit again later."};
+const DISCOUNT_MINIMUM=699;
+const DISCOUNT_RATE=0.10;
+const DISCOUNT_CAP=100;
 const ORDER_TIME_ZONE="Asia/Kolkata";
 function isOrderingOpen(){
   const parts=new Intl.DateTimeFormat("en-GB",{timeZone:ORDER_TIME_ZONE,hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
@@ -15,19 +19,27 @@ function isOrderingOpen(){
   return currentMinutes>=9*60&&currentMinutes<21*60;
 }
 function updateOrderAvailability(){
-  const open=isOrderingOpen();
+  const withinHours=isOrderingOpen();
+  const manuallyEnabled=storeSettings.orderingEnabled!==false;
+  const open=withinHours&&manuallyEnabled;
   const button=document.getElementById("placeOrderButton");
   const status=document.getElementById("orderStatus");
   const closedNote=document.getElementById("orderClosedNote");
   if(button){button.disabled=!open;button.textContent=open?"Continue order on WhatsApp":"Online ordering is closed";}
   if(status){
-    status.textContent=open
-      ?"Online ordering is OPEN — accepting orders daily from 9:00 AM to 9:00 PM (IST)."
-      :"Online ordering is currently CLOSED. We’ll start accepting orders again at 9:00 AM (IST).";
+    status.textContent=!manuallyEnabled
+      ?(storeSettings.closedMessage||"We are temporarily not accepting online orders. Please visit again later.")
+      :withinHours
+        ?"Online ordering is OPEN — accepting orders daily from 9:00 AM to 9:00 PM (IST)."
+        :"Online ordering is currently CLOSED. We’ll start accepting orders again at 9:00 AM (IST).";
     status.classList.toggle("is-closed",!open);
     status.classList.toggle("is-open",open);
   }
-  if(closedNote){closedNote.hidden=open;closedNote.textContent="Online ordering is closed now. Please come back after 9:00 AM IST.";}
+  if(closedNote){closedNote.hidden=open;closedNote.textContent=!manuallyEnabled?(storeSettings.closedMessage||"Online ordering is temporarily paused."):"Online ordering is closed now. Please come back after 9:00 AM IST.";}
+}
+async function refreshOrderingSettings(){
+  try{const r=await fetch("/api/settings",{cache:"no-store"});if(r.ok)storeSettings=await r.json()}catch{}
+  updateOrderAvailability();
 }
 function getCart(){try{return JSON.parse(sessionStorage.getItem(CART_KEY))||{}}catch{return {}}}
 function saveCart(c){sessionStorage.setItem(CART_KEY,JSON.stringify(c))}
@@ -38,7 +50,8 @@ function getCharges(){
   const distance=document.getElementById("deliveryDistance")?.value||"";
   const smallOrder=subtotal>0&&subtotal<SMALL_ORDER_LIMIT?SMALL_ORDER_FEE:0;
   const delivery=distance==="beyond"?OUTSIDE_DELIVERY_FEE:0;
-  return {subtotal,smallOrder,delivery,total:subtotal+smallOrder+delivery};
+  const discount=subtotal>=DISCOUNT_MINIMUM?Math.min(DISCOUNT_CAP,subtotal*DISCOUNT_RATE):0;
+  return {subtotal,smallOrder,delivery,discount,total:subtotal-discount+smallOrder+delivery};
 }
 function updateCheckoutTotals(){
   const fees=getCharges();
@@ -46,6 +59,7 @@ function updateCheckoutTotals(){
   set("cartSubtotal",fees.subtotal);
   set("smallOrderCharge",fees.smallOrder);
   set("deliveryCharge",fees.delivery);
+  set("cartDiscount",fees.discount);
   set("cartTotal",fees.total);
 }
 function renderMenu(){const grid=document.getElementById("productGrid");if(!grid)return;const categories=[...new Set(products.map(p=>(p.category||"Uncategorized").trim()).filter(Boolean))];if(selectedCategory!=="All"&&!categories.includes(selectedCategory))selectedCategory="All";const nav=document.getElementById("menuCategories");if(nav){nav.innerHTML=["All",...categories].map(c=>`<button class="category-chip ${selectedCategory===c?"active":""}" type="button" data-category="${esc(c)}" aria-pressed="${selectedCategory===c}">${esc(c==="All"?"All items":c)}</button>`).join("");nav.querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{selectedCategory=b.dataset.category;renderMenu()})}const visible=selectedCategory==="All"?products:products.filter(p=>(p.category||"Uncategorized").trim()===selectedCategory);grid.innerHTML=visible.map(p=>`<article class="product-card"><div class="product-thumb">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">`:"✦"}</div><h3>${esc(p.name)}</h3><p>${esc(p.description||"Prepared with care.")}</p><div class="product-foot"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${esc(p.id)}">Add to cart +</button></div></article>`).join("")||"<p>No items in this category yet.</p>";grid.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const c=getCart();c[b.dataset.add]=(c[b.dataset.add]||0)+1;saveCart(c);renderCart();openCart()})}
@@ -56,8 +70,8 @@ function closeCart(){document.getElementById("cartPanel").classList.remove("open
 document.addEventListener("DOMContentLoaded",async()=>{
   if(!document.getElementById("productGrid"))return;
   document.getElementById("year").textContent=new Date().getFullYear();
-  updateOrderAvailability();
-  window.setInterval(updateOrderAvailability,15000);
+  refreshOrderingSettings();
+  window.setInterval(refreshOrderingSettings,15000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateOrderAvailability()});
   document.getElementById("cartToggle").onclick=openCart;
   document.getElementById("cartClose").onclick=closeCart;
@@ -69,9 +83,10 @@ document.addEventListener("DOMContentLoaded",async()=>{
   document.getElementById("contactWhatsApp").target="_blank";
   document.getElementById("contactWhatsApp").rel="noopener";
   document.getElementById("deliveryDistance").addEventListener("change",updateCheckoutTotals);
-  document.getElementById("orderForm").onsubmit=e=>{
+  document.getElementById("orderForm").onsubmit=async e=>{
     e.preventDefault();
-    if(!isOrderingOpen()){updateOrderAvailability();alert("Online ordering is closed now. Please place your order between 9:00 AM and 9:00 PM IST.");return}
+    await refreshOrderingSettings();
+    if(!isOrderingOpen()||storeSettings.orderingEnabled===false){updateOrderAvailability();alert(storeSettings.orderingEnabled===false?(storeSettings.closedMessage||"Online ordering is temporarily paused."):"Online ordering is closed now. Please place your order between 9:00 AM and 9:00 PM IST.");return}
     const form=e.currentTarget;
     const data=new FormData(form);
     const c=getCart();
@@ -96,6 +111,7 @@ document.addEventListener("DOMContentLoaded",async()=>{
       `Food subtotal: ${money(fees.subtotal)}`,
       `Small order charge: ${money(fees.smallOrder)}`,
       `Delivery charge: ${money(fees.delivery)}`,
+      `10% Discount: -${money(fees.discount)}`,
       `Checkout total: ${money(fees.total)}`,"",
       "Order timing: Accepted daily, 9:00 AM–9:00 PM.",
       "Delivery timing: Within 2 hours after the order is received. For immediate delivery, please call the restaurant directly."
